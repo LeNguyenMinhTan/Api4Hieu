@@ -4,6 +4,8 @@ const User = require('../models/user');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const checkAuth = require('../middleware/check_auth');
+
 
 router.post('/signup',(req,res,next)=>{
     User.find({ email: req.body.email})
@@ -24,6 +26,9 @@ router.post('/signup',(req,res,next)=>{
                     const user = new User({
                         _id: new mongoose.Types.ObjectId,
                         email: req.body.email,
+                        name: req.body.name,
+                        address: req.body.address,
+                        phone: req.body.phone,
                         password: hash  
                     });
                     user.save()
@@ -87,6 +92,66 @@ router.post('/signin',(req,res,next) =>{
         })
     })
 })
+
+router.get('/', checkAuth,(req,res,next)=>{
+    User.find()
+    .select("name email _id address phone")
+    .exec()
+    .then(docs=>{
+        const response = {
+            count: docs.length,
+            Newss: docs.map(doc=>{
+                return{
+                    name: doc.name,
+                    address: doc.address,
+                    phone: doc.phone,
+                    email: doc.email,
+                    _id:doc._id,
+                    request:{ //show route name
+                        type:'GET',
+                        url: 'http://localhost:4000/users/'+ doc._id
+                    }
+                };
+            })
+        };
+        res.status(200).json(response);
+    })
+    .catch(err=>{
+       console.log(err);
+       res.status(500).json({
+           error: err
+       });
+    });
+});
+
+router.get('/:usersId', checkAuth,(req,res,next)=>{
+    const id = req.params.usersId;
+    User.findById(id)
+    .select('name email _id address phone')
+    .exec()
+    .then(
+        doc=>{
+        if(doc){
+            res.status(200).json({
+                news: doc,
+                request:{
+                    type: 'GET',
+                    url: 'http://localhost:4000/users'
+                }
+            });
+        } 
+        else {
+            res.status(404).json({message: 'No vaild entry found for provied ID'});
+        }
+    })
+    .catch(err=>{
+        console.log(err);
+        res.status(500).json({
+            error:err
+        });
+    });
+});
+
 
 router.delete('/:userId',(req,res,next)=>{
     const id = req.params.userId;

@@ -48,7 +48,7 @@ router.get('/', checkAuth,(req,res,next)=>{
                     _id:doc._id,
                     request:{ //show route title
                         type:'GET',
-                        url: 'http://localhost:4000/News/'+ doc._id
+                        url: 'http://localhost:4000/news/'+ doc._id
                     }
                 };
             })

@@ -7,7 +7,7 @@ const userRoutes = require('./api/routes/user')
 const bodyParser = require('body-parser');
 app.use(cors()); // https://www.npmjs.com/package/cors about info
 const newsRoutes = require('./api/routes/news');
-
+const booksRoutes = require('./api/routes/book');
 // app.use(express.static(__dirname + '/public'));
 
 // app.get('/', function(req, res) {
@@ -23,6 +23,7 @@ app.use(bodyParser.json());
 
 app.use('/users',userRoutes);
 app.use('/news',newsRoutes);
+app.use('/books',booksRoutes);
 
 
 
