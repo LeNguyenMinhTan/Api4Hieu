@@ -35,7 +35,8 @@ const upload = multer({
 
 router.get('/', checkAuth,(req,res,next)=>{
     News.find()
-    .select("title description _id newsImage")
+    .select("title description _id newsImage created_at")
+    .sort({'created_at': -1}).limit(1)
     .exec()
     .then(docs=>{
         const response = {
@@ -46,6 +47,7 @@ router.get('/', checkAuth,(req,res,next)=>{
                     description: doc.description,
                     newsImage: doc.newsImage,
                     _id:doc._id,
+                    created_at:doc.created_at,
                     request:{ //show route title
                         type:'GET',
                         url: 'http://localhost:4000/news/'+ doc._id
