@@ -33,7 +33,7 @@ const upload = multer({
 });
 
 
-router.get('/', checkAuth,(req,res,next)=>{
+router.get('/newOne', checkAuth,(req,res,next)=>{
     News.find()
     .select("title description _id newsImage created_at")
     .sort({'created_at': -1}).limit(1)
@@ -64,6 +64,40 @@ router.get('/', checkAuth,(req,res,next)=>{
        });
     });
 });
+
+router.get('/', checkAuth,(req,res,next)=>{
+    News.find()
+    .select("title description _id newsImage created_at")
+    .exec()
+    .then(docs=>{
+        const response = {
+            count: docs.length,
+            Newss: docs.map(doc=>{
+                return{
+                    title: doc.title,
+                    description: doc.description,
+                    newsImage: doc.newsImage,
+                    _id:doc._id,
+                    created_at:doc.created_at,
+                    request:{ //show route title
+                        type:'GET',
+                        url: 'http://localhost:4000/news/'+ doc._id
+                    }
+                };
+            })
+        };
+        res.status(200).json(response);
+    })
+    .catch(err=>{
+       console.log(err);
+       res.status(500).json({
+           error: err
+       });
+    });
+});
+
+
+
 
 router.post('/', checkAuth, upload.single('newsImage'),(req,res,next)=>{
     const news = new News({
